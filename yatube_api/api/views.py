@@ -10,7 +10,7 @@ from rest_framework.pagination import (
 from rest_framework.permissions import IsAuthenticated
 
 from api.permissions import IsAuthenticatedAuthorOrReadOnly
-from posts.models import Post, Group, Follow
+from posts.models import Post, Group
 from api.serializers import (
     CommentSerializer,
     GroupSerializer,
