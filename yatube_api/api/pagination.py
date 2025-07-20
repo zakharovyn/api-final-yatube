@@ -2,18 +2,13 @@ from rest_framework import pagination
 from rest_framework.response import Response
 
 
-class CustomCommentsPagination(pagination.PageNumberPagination):
+class FollowPagination(pagination.PageNumberPagination):
 
-    def get_paginated_response(self, data):
-        return Response(data)
-
-
-class CustomFollowPagination(pagination.PageNumberPagination):
-
-    def get_paginated_response(self, data):
-        return Response(data)
+    def get_paginated_response(self, follows):
+        return Response(follows)
 
 
-class CustomGroupsPagination(pagination.PageNumberPagination):
-    def get_paginated_response(self, data):
-        return Response(data)
+class GroupsPagination(pagination.PageNumberPagination):
+
+    def get_paginated_response(self, groups):
+        return Response(groups)

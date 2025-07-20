@@ -2,8 +2,11 @@
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework import viewsets, filters, mixins
+from rest_framework.pagination import (
+    LimitOffsetPagination,
+    PageNumberPagination,
+)
 from rest_framework.permissions import IsAuthenticated
 
 from api.permissions import IsAuthenticatedAuthorOrReadOnly
@@ -15,9 +18,8 @@ from api.serializers import (
     FollowSerializer,
 )
 from api.pagination import (
-    CustomCommentsPagination,
-    CustomFollowPagination,
-    CustomGroupsPagination,
+    FollowPagination,
+    GroupsPagination,
 )
 
 User = get_user_model()
@@ -48,7 +50,7 @@ class CommentViewSet(
     """ViewSet для Comment."""
 
     serializer_class = CommentSerializer
-    pagination_class = CustomCommentsPagination
+    pagination_class = PageNumberPagination
 
     def __get_post_or_404(self):
         """Получение поста если он существует."""
@@ -72,22 +74,25 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    pagination_class = CustomGroupsPagination
+    pagination_class = GroupsPagination
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
     """ViewSet для Follow."""
 
-    queryset = Follow.objects.all()
     serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     filter_backends = [filters.SearchFilter]
-    search_fields = ["following__username"]
-    pagination_class = CustomFollowPagination
+    search_fields = ['following__username']
+    pagination_class = FollowPagination
 
     def get_queryset(self):
         """Получение набора Follow для автора."""
-        return self.queryset.filter(user=self.request.user)
+        return self.request.user.followings.all()
 
     def perform_create(self, serializer):
         """Создание объекта с записью в поле юзер автора."""
