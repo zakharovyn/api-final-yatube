@@ -49,6 +49,7 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'following')
 
     def validate_following(self, value):
+        """Валидация подписок"""
         user = self.context['request'].user
         if value == user:
             raise serializers.ValidationError(
