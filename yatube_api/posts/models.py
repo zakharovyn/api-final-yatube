@@ -31,6 +31,7 @@ class Post(TextField):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        verbose_name='Автор',
         related_name='posts'
     )
     image = models.ImageField(
@@ -42,6 +43,7 @@ class Post(TextField):
     group = models.ForeignKey(
         Group,
         on_delete=models.CASCADE,
+        verbose_name='Группа',
         related_name='posts',
         blank=True,
         null=True
@@ -53,24 +55,37 @@ class Post(TextField):
 
 class Comment(TextField):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='comments'
+    )
     post = models.ForeignKey(
-        Post, on_delete=models.CASCADE, related_name='comments')
+        Post,
+        on_delete=models.CASCADE,
+        verbose_name='Публикация',
+        related_name='comments'
+    )
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        verbose_name='Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
 
 
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="followings",
+        verbose_name='Подписчик',
+        related_name='followings',
         null=True,
         blank=True
     )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        verbose_name='На кого подписан',
         related_name='followers',
         null=True,
         blank=True
@@ -79,7 +94,11 @@ class Follow(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'following'],
+                fields=('user', 'following'),
                 name='unique_follow'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('following')),
+                name='prevent_self_follow'
             )
         ]

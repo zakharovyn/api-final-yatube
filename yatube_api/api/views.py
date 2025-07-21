@@ -17,10 +17,7 @@ from api.serializers import (
     PostSerializer,
     FollowSerializer,
 )
-from api.pagination import (
-    FollowPagination,
-    GroupsPagination,
-)
+
 
 User = get_user_model()
 
@@ -74,7 +71,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    pagination_class = GroupsPagination
+    pagination_class = PageNumberPagination
 
 
 class FollowViewSet(
@@ -86,9 +83,9 @@ class FollowViewSet(
 
     serializer_class = FollowSerializer
     permission_classes = (IsAuthenticated,)
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['following__username']
-    pagination_class = FollowPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         """Получение набора Follow для автора."""
